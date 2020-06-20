@@ -1,10 +1,10 @@
-require('dotenv').config()
 import Telegraf, { Stage, session } from "telegraf"
 import introScene from "../controllers/intro"
 import { SceneContextMessageUpdate } from "telegraf/typings/stage"
 import { Scene } from '../controllers/scenes'
+import env from '../env'
 
-let bot = new Telegraf(process.env.TELEGRAM_TOKEN ?? "")
+let bot = new Telegraf(env.TELEGRAM_TOKEN)
 
 const stages = new Stage([
     introScene
