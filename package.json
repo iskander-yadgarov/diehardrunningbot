@@ -1,0 +1,23 @@
+{
+  "name": "maps-mobile-testpalm-api",
+  "version": "1.0.0",
+  "description": "used to clone existing testpalm project and delete it",
+  "author": "yadgarov",
+  "main": "build/index.js",
+  "private": true,
+  "engines": {
+    "node": "12.4.0"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-async-handler": "^1.1.4",
+    "got": "^9.6.0",
+    "http-errors": "^1.7.3",
+    "telegraf": "^3.38.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/http-errors": "^1.6.3"
+  }
+}
