@@ -16,7 +16,8 @@ function connect(completion: (error?: Error) => void) {
         useNewUrlParser: true,
         useFindAndModify: true,
         useUnifiedTopology: true,
-        useCreateIndex: true
+        useCreateIndex: true,
+        autoIndex: env.isDevelopment
     })
 
     database = Mongoose.connection

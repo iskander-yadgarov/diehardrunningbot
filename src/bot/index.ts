@@ -1,13 +1,15 @@
 import Telegraf, { Stage, session } from "telegraf"
-import introScene from "../controllers/intro"
 import { SceneContextMessageUpdate } from "telegraf/typings/stage"
-import { Scene } from '../controllers/scenes'
+import Scene from '../controllers/scenes'
+import introScene from "../controllers/intro"
+import startScene from '../controllers/start'
 import env from '../env'
 
 let bot = new Telegraf(env.TELEGRAM_TOKEN)
 
 const stages = new Stage([
-    introScene
+    introScene,
+    startScene
 ])
 
 bot.use(session())
