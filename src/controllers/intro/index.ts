@@ -35,10 +35,10 @@ introScene.action(KeyboardAction.startBooking, async (ctx: SceneContextMessageUp
       ctx.scene.enter(Scene.start, { user: user })
     } else {
       // ctx.scene.enter(Scene.authorization, { user: user })
-      
+
       /// go to authorization scene
       const user = {
-        userId: chatId,
+        chatId: chatId,
         firstName: ctx.from?.first_name || '',
         lastName: ctx.from?.last_name || ''
       }

@@ -12,5 +12,11 @@ export default {
             training_schedule: 'Расписание тренировок',
             settings: 'Настройки'
         }
+    },
+
+    create_event: {
+        when: 'Когда?',
+        where: 'Где?',
+        name: 'Как назовёшь мероприятие?'
     }
 }

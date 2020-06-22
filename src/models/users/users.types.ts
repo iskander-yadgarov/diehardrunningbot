@@ -1,7 +1,7 @@
 import { Document, Model } from "mongoose";
 
 export interface IUser {
-    userId: String,
+    chatId: String,
     firstName: String,
     lastName: String
 }
