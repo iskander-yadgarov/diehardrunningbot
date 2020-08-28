@@ -2,7 +2,7 @@ import { Context } from "telegraf"
 import { UserModel } from "../models/users/users.model"
 import { UserManager } from "../managers/user"
 
-enum AdminCommand {
+export enum AdminCommand {
     create = 'create'
 }
 

@@ -4,7 +4,8 @@ export interface IEvent {
     name: String,
     description: String,
     address: String,
-    date: Date
+    date: Date,
+    isPublished: boolean
 }
 
 export interface IEventDocument extends IEvent, Document {}

@@ -15,6 +15,7 @@ export default {
     },
 
     create_event: {
+        title: 'Создать новое событие.',
         when: 'Когда?',
         where: 'Где?',
         name: 'Как назовёшь мероприятие?'

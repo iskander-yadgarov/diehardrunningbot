@@ -10,7 +10,7 @@
     "strictNullChecks": true,
     "moduleResolution": "node",
     "outDir": "out",
-    "typeRoots": ["./node_modules/telegraf/typings", "./typings"]
+    "typeRoots": ["./typings"]
   },
   "include": ["src/**/*"]
 }

@@ -20,6 +20,7 @@ introScene.enter(async (ctx: SceneContextMessageUpdate) => {
 })
 
 introScene.action(KeyboardAction.startBooking, async (ctx: SceneContextMessageUpdate) => {  
+  console.log('start booking')
   const chatId = ctx.chat?.id.toString()
   
   if (!chatId) { return }
