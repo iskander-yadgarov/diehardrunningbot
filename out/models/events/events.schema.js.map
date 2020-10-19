@@ -1,0 +1,1 @@
+{"version":3,"file":"events.schema.js","sourceRoot":"","sources":["../../../src/models/events/events.schema.ts"],"names":[],"mappings":";;AAAA,uCAAiC;AAEjC,MAAM,WAAW,GAAG,IAAI,iBAAM,CAAC;IAC3B,IAAI,EAAE,MAAM;IACZ,WAAW,EAAE,MAAM;IACnB,OAAO,EAAE,MAAM;IACf,IAAI,EAAE,IAAI;IACV,QAAQ,EAAE,MAAM;IAChB,KAAK,EAAE,MAAM;CAChB,CAAC,CAAA;AAEF,kBAAe,WAAW,CAAA"}
