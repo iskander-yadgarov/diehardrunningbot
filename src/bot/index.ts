@@ -125,7 +125,6 @@ bot.start((ctx: SceneContextMessageUpdate) => {
 
 
 export async function launch() {
-
     bot.launch({ polling: { timeout: 2 } })
 
 //     TelegrafMongoSession.setup(bot, 'mongodb+srv://yadgarov:pc319hRzYq5KbSgf@diehardcore.fsgg5.mongodb.net/diehardcoredb?retryWrites=true&w=majority',)

@@ -34,8 +34,10 @@
     {
       "id": "180314551:180314551",
       "data": {
-        "stack": [],
-        "currentSceneId": "menu",
+        "stack": [
+          "intro"
+        ],
+        "currentSceneId": "user-trainings",
         "userName": "",
         "waitingForName": false,
         "eventToEdit": {
@@ -50,7 +52,7 @@
         "requested": "none",
         "createEventState": {},
         "__scenes": {
-          "current": "menu",
+          "current": "user-trainings",
           "state": {}
         }
       }
