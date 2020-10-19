@@ -4,7 +4,9 @@ const EventSchema = new Schema({
     name: String,
     description: String,
     address: String,
-    date: Date
+    date: Date,
+    capacity: Number,
+    price: Number
 })
 
 export default EventSchema

@@ -1,5 +1,7 @@
 import { launch } from "./bot"
 import db from './db'
+import './extensions/date.extension'
+import "./extensions/string.extension"
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 

@@ -5,6 +5,8 @@ export interface IEvent {
     description: String,
     address: String,
     date: Date,
+    capacity: Number,
+    price: Number,
     isPublished: boolean
 }
 

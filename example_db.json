@@ -1,0 +1,59 @@
+{
+  "sessions": [
+    {
+      "id": "111326630:111326630",
+      "data": {
+        "stack": [],
+        "currentSceneId": "menu",
+        "createEventState": {},
+        "userName": "",
+        "waitingForName": false,
+        "rawEvent": {
+          "date": "2020-10-20T17:20:00.000Z",
+          "name": "ололол",
+          "address": "лужники",
+          "price": 20,
+          "capacity": 10
+        },
+        "eventToEdit": {
+          "_id": "5f8d5f2dbebe2c3bab3f23b6",
+          "date": "2020-10-20T17:20:00.000Z",
+          "name": "ололол",
+          "address": "лужники",
+          "price": 20,
+          "capacity": 10,
+          "__v": 0
+        },
+        "requested": "none",
+        "__scenes": {
+          "current": "menu",
+          "state": {}
+        }
+      }
+    },
+    {
+      "id": "180314551:180314551",
+      "data": {
+        "stack": [],
+        "currentSceneId": "menu",
+        "userName": "",
+        "waitingForName": false,
+        "eventToEdit": {
+          "_id": "5f85c3d716f9561d77a5fd4f",
+          "date": "2020-10-19T20:00:00.000Z",
+          "name": "antoshka new",
+          "address": "rovno",
+          "price": 100,
+          "capacity": 10,
+          "__v": 0
+        },
+        "requested": "none",
+        "createEventState": {},
+        "__scenes": {
+          "current": "menu",
+          "state": {}
+        }
+      }
+    }
+  ]
+}

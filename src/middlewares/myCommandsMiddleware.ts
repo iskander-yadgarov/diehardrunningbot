@@ -1,8 +1,8 @@
 import Telegraf, { Stage, session } from "telegraf"
-import { AdminCommand } from '../middlewares/setupAdminTools'
+import { Commands } from './commandDescription'
 import { UserManager } from "../managers/user"
 import { SceneContextMessageUpdate } from "telegraf/typings/stage"
-import Scene from '../controllers/scenes'
+import { Scene } from '../controllers/scenes'
 
 export function myCommandsMiddleware(ctx: SceneContextMessageUpdate, next: Function) {
     if (ctx.updateType != 'message' || !ctx.updateSubTypes.includes('text')) { return next() }
@@ -10,7 +10,7 @@ export function myCommandsMiddleware(ctx: SceneContextMessageUpdate, next: Funct
     const text = ctx.message?.text || ''
 
     switch (text) {
-        case `/${AdminCommand.create}`: {
+        case `/${Commands.create}`: {
             const chatId = ctx.chat?.id.toString()
 
             if (UserManager.isAdmin(chatId)) {
