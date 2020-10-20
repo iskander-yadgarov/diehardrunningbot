@@ -29,7 +29,7 @@ Date.prototype.getStringFullDate = function () {
 };
 Date.prototype.getStringDayMonth = function () {
     const date = this.getDate();
-    const month = this.getMonth();
+    const month = (this.getMonth() + 1);
     const monthStr = month > 9 ? month.toString() : '0' + month.toString();
     return `${date}.${monthStr}`;
 };
