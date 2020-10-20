@@ -51,7 +51,7 @@ Date.prototype.getStringFullDate = function (): string {
 
 Date.prototype.getStringDayMonth = function(): string {
     const date: number = this.getDate()
-    const month: number = this.getMonth()
+    const month: number = this.getMonth() + 1
     const monthStr = month > 9 ? month.toString() : '0' + month.toString()
     return `${date}.${monthStr}`
 }
