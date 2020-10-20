@@ -4,7 +4,7 @@ exports.UserManager = void 0;
 var UserManager;
 (function (UserManager) {
     function isAdmin(userId) {
-        return userId === '111326630' || userId === '180314551';
+        return userId === '111326630' || userId === '180314551' || userId === '295433083';
     }
     UserManager.isAdmin = isAdmin;
 })(UserManager = exports.UserManager || (exports.UserManager = {}));
