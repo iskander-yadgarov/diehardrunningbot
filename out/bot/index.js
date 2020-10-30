@@ -60,7 +60,7 @@ const stages = new telegraf_1.Stage([
     user_trainings_1.default,
     list_1.default,
     archive_1.default
-]);
+], { default: scenes_1.Scene.menu });
 // bot.use((ctx: SceneContextMessageUpdate, next: Function) => {
 //     // console.log(ctx)
 //     return next()

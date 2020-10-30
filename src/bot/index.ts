@@ -30,7 +30,7 @@ const stages = new Stage([
     userTrainingScene,
     userListScene,
     archiveScene
-])
+], { default: Scene.menu })
 
 // bot.use((ctx: SceneContextMessageUpdate, next: Function) => {
 //     // console.log(ctx)
