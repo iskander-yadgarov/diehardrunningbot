@@ -1,41 +1,48 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Scene = exports.SceneManager = void 0;
-class SceneManager {
+exports.Scene = void 0;
+/*
+export abstract class SceneManager {
+
     // open scene and reset all previous stack
-    static open(ctx, id, param) {
-        ctx.scene.enter(id, param);
-        ctx.session.stack = Array();
-        ctx.session.currentSceneId = id;
+    public static open(ctx: SceneContextMessageUpdate, id: string, param?: object) {
+        ctx.session.stack = Array<string>()
+        ctx.session.currentSceneId = id
+        ctx.scene.enter(id, param)
         // stack = []
     }
+
     // move to another scene with
-    static enter(ctx, id, param) {
+    public static enter(ctx: SceneContextMessageUpdate, id: string, param?: object) {
         if (ctx.session.currentSceneId) {
-            ctx.session.stack.push(ctx.session.currentSceneId);
+            ctx.session.stack.push(ctx.session.currentSceneId)
         }
-        ctx.session.currentSceneId = id;
-        ctx.scene.enter(id, param);
+
+        ctx.session.currentSceneId = id
+        console.log(ctx.session)
+        ctx.scene.enter(id, param)
+        ctx.session.__scenes.current = id
     }
-    static back(ctx, param) {
-        console.log(ctx.session);
+
+    public static back(ctx: SceneContextMessageUpdate, param?: object) {
+        console.log(ctx.session)
         if (ctx.session.stack.length > 0) {
-            const lastSceneId = ctx.session.stack.pop();
-            ctx.scene.enter(lastSceneId, param);
+            const lastSceneId = ctx.session.stack.pop()!
+            ctx.scene.enter(lastSceneId, param)
             // Stage.enter(lastSceneId, param)
-            ctx.session.currentSceneId = lastSceneId;
+            ctx.session.currentSceneId = lastSceneId
         }
-        else {
-            ctx.scene.enter(Scene.menu);
-            console.error('Scene-navigation failed. stack length is zero');
+        else
+        {
+            ctx.scene.enter(Scene.menu)
+            console.error('Scene-navigation failed. stack length is zero')
         }
     }
 }
-exports.SceneManager = SceneManager;
+*/
 var Scene;
 (function (Scene) {
     Scene["intro"] = "intro";
-    Scene["authorization"] = "authorization";
     Scene["menu"] = "menu";
     Scene["schedule"] = "schedule";
     Scene["createEvent"] = "create-event";

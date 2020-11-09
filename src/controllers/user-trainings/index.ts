@@ -1,7 +1,7 @@
 import Telegraf, { BaseScene, Markup, Extra } from "telegraf"
 import { SceneContextMessageUpdate } from "telegraf/typings/stage"
 import strings from '../../resources/strings'
-import { Scene, SceneManager } from '../scenes'
+import { Scene } from '../scenes'
 import { BookingModel } from '../../models/bookings/bookings.model'
 import { EventModel } from "../../models/events/events.model"
 import { isValidObjectId, Mongoose } from "mongoose"
@@ -20,7 +20,7 @@ trainingScene.enter(async (ctx: SceneContextMessageUpdate) => {
     console.log('trainingScene enter')
     if (!ctx.chat) return // todo handle error
     let userId = ctx.chat.id.toString()
-    
+
     BookingModel.find({'userId': userId}).exec(async (error, bookings) => {
         if (error) return // todo handle error
 
@@ -41,7 +41,7 @@ trainingScene.enter(async (ctx: SceneContextMessageUpdate) => {
             if (error) { console.log(error); return } // handle error
             let trainingsBtns: CallbackButton[][] = []
             events.forEach(event => {
-                
+
                 let localizedDate = `${event.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} ${event.date.getStringFullDate()}`
                 let btn = [Markup.callbackButton(localizedDate, KeyboardAction.openTraining + event._id)]
                 trainingsBtns.push(btn)
@@ -57,15 +57,16 @@ trainingScene.action(new RegExp(`^${KeyboardAction.openTraining}`), async (ctx: 
     let data = ctx.callbackQuery?.data
     let id = data?.split('-')[1]
 
-    EventModel.findById(id).exec(async (error, event) => {
-        if (error || !event) return // todo handle errors
+    const promise = EventModel.findById(id).exec()
+    var result = await promise
+    if (result === undefined) return
 
-        SceneManager.enter(ctx, Scene.trainingPage, (event as any)._doc)
-    })
+    ctx.session.selectedEvent = (result as any)._doc
+    ctx.scene.enter(Scene.trainingPage)
 })
 
 trainingScene.action(KeyboardAction.back, async (ctx: SceneContextMessageUpdate) => {
-    SceneManager.back(ctx)
+  ctx.scene.enter(Scene.menu)
 })
 
 export default trainingScene

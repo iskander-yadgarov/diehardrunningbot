@@ -18,97 +18,96 @@ const scenes_1 = require("../scenes");
 const users_model_1 = require("../../models/users/users.model");
 var KeyboardAction;
 (function (KeyboardAction) {
-    KeyboardAction["accept"] = "accept_action";
-    KeyboardAction["name_confirm"] = "name_confirm";
-    KeyboardAction["menu"] = "go_to_menu";
+    KeyboardAction["ready"] = "ready";
 })(KeyboardAction || (KeyboardAction = {}));
 const introScene = new telegraf_1.BaseScene(scenes_1.Scene.intro);
-const confirmNameKeyboard = telegraf_1.Markup.inlineKeyboard([telegraf_1.Markup.callbackButton('Все верно 👌', KeyboardAction.name_confirm)]).extra();
-// let userName = ''
-// let waitingForName: boolean
-// let userModel: IUserDocument
-// let lastMessageId: number
-// let lastMessageText: string
+const confirmNameKeyboard = telegraf_1.Markup.inlineKeyboard([telegraf_1.Markup.callbackButton('Погнали 💪', KeyboardAction.ready)]).extra();
 introScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const chatId = (_a = ctx.chat) === null || _a === void 0 ? void 0 : _a.id.toString();
-    if (!chatId)
-        return;
-    ctx.session.userName = '';
-    ctx.session.waitingForName = false;
-    ctx.session.userModel = undefined;
-    ctx.session.lastMessageId = undefined;
-    ctx.session.lastMessageText = undefined;
-    // properly should be moved to Model class, but I don't know how to do it here 🤦‍♂️
-    users_model_1.UserModel.find({ chatId: chatId }).exec((error, users) => __awaiter(void 0, void 0, void 0, function* () {
-        if (error) {
-            console.log(`error for fetching user ${chatId}: ${error}`);
-            return;
-        }
-        if (users.length > 1) {
-            console.log('multiple users with the same id');
-        }
-        const user = users[0];
-        if (user != undefined) {
-            // open menu scene
-            scenes_1.SceneManager.open(ctx, scenes_1.Scene.menu, { user: user });
-        }
-        else {
-            // show intro messages and wait for reply
-            ctx.reply(strings_1.default.intro_scene.message, telegraf_1.Markup.inlineKeyboard([
-                [telegraf_1.Markup.callbackButton(strings_1.default.intro_scene.buttons.accept_action, KeyboardAction.accept)]
-            ]).extra());
-        }
-    }));
+    const firstName = (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.first_name;
+    // show intro messages and wait for reply
+    ctx.reply(`Привет, ${firstName}!\n\n${strings_1.default.intro_scene.message}`, confirmNameKeyboard);
 }));
-introScene.action(KeyboardAction.accept, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+introScene.action(KeyboardAction.ready, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _b, _c, _d;
     const chatId = (_b = ctx.chat) === null || _b === void 0 ? void 0 : _b.id.toString();
-    if (!chatId) {
+    if (!chatId)
+        return;
+    let promise1 = users_model_1.UserModel.find({ chatId: chatId }).exec();
+    // const users = await promise
+    let users = yield promise1;
+    if (users === undefined) {
+        console.log(`error for fetching user ${chatId}`);
+    }
+    if (users.length > 1) {
+        console.log('multiple users with the same id');
         return;
     }
-    // todo check if we have first and last names from default
-    ctx.session.waitingForName = true;
-    ctx.session.userName = (((_c = ctx.from) === null || _c === void 0 ? void 0 : _c.first_name) || '') + ' ' + (((_d = ctx.from) === null || _d === void 0 ? void 0 : _d.last_name) || '');
-    ctx.session.lastMessageText = `Давай познакомимся.\n\nТвое имя ${ctx.session.userName}, все верно?\n\nЕсли нет, то напиши как ты хочешь чтобы к тебе обращались.`;
-    ctx.session.lastMessageId = (yield ctx.reply(ctx.session.lastMessageText, confirmNameKeyboard)).message_id;
-}));
-introScene.on('text', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _e;
-    if (!ctx.session.waitingForName)
-        return;
-    const text = ((_e = ctx.message) === null || _e === void 0 ? void 0 : _e.text) || '';
-    const names = text.split(' ');
-    if (names.length != 2) {
-        ctx.reply('Не чуди, напиши пожалуйста только свое имя и фамилию через пробел.');
+    // console.log(promise)
+    // const user = users[0]
+    if (users[0] != undefined) {
+        ctx.scene.enter(scenes_1.Scene.schedule);
     }
     else {
-        ctx.telegram.editMessageText(ctx.chat.id, ctx.session.lastMessageId, undefined, ctx.session.lastMessageText);
-        ctx.session.userName = text;
-        ctx.reply(`${names[0]} ${names[1]}, все верно?`, confirmNameKeyboard);
+        const user = {
+            chatId: chatId,
+            firstName: ((_c = ctx.from) === null || _c === void 0 ? void 0 : _c.first_name) || '',
+            lastName: ((_d = ctx.from) === null || _d === void 0 ? void 0 : _d.last_name) || '',
+            discount: 0
+        };
+        const promise = users_model_1.UserModel.create(user).then(newUser => {
+            ctx.scene.enter(scenes_1.Scene.schedule);
+        });
     }
 }));
-introScene.action(KeyboardAction.name_confirm, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f;
-    const chatId = (_f = ctx.chat) === null || _f === void 0 ? void 0 : _f.id.toString();
-    if (!chatId) {
-        return;
-    }
-    ctx.session.waitingForName = false;
-    let names = ctx.session.userName.split(' ');
-    const user = {
-        chatId: chatId,
-        firstName: names[0] || '',
-        lastName: names[1] || '',
-        discount: 0
-    };
-    users_model_1.UserModel.create(user).then(newUser => {
-        ctx.session.userModel = newUser;
-        ctx.reply(`Отлично, ${user.firstName}, больше никаких вопросов!`, telegraf_1.Markup.inlineKeyboard([telegraf_1.Markup.callbackButton('В меню', KeyboardAction.menu)]).extra());
-    });
-}));
-introScene.action(KeyboardAction.menu, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    scenes_1.SceneManager.open(ctx, scenes_1.Scene.menu, ctx.session.userModel);
-}));
+/*
+introScene.action(KeyboardAction.accept, async (ctx: SceneContextMessageUpdate) => {
+  const chatId = ctx.chat?.id.toString()
+  if (!chatId) { return }
+
+  // todo check if we have first and last names from default
+  ctx.state.waitingForName = true
+  ctx.state.userName = (ctx.from?.first_name || '') + ' ' + (ctx.from?.last_name || '')
+  ctx.state.lastMessageText = `Давай познакомимся.\n\nТвое имя ${ctx.state.userName}, все верно?\n\nЕсли нет, то напиши как ты хочешь чтобы к тебе обращались.`
+  ctx.state.lastMessageId = (await ctx.reply(ctx.state.lastMessageText, confirmNameKeyboard)).message_id
+})
+
+introScene.on('text', async (ctx: SceneContextMessageUpdate) => {
+  if (!ctx.state.waitingForName) return
+
+  const text = ctx.message?.text || ''
+  const names = text.split(' ')
+
+  if (names.length != 2) {
+    ctx.reply('Не чуди, напиши пожалуйста только свое имя и фамилию через пробел.')
+  } else {
+    ctx.telegram.editMessageText(ctx.chat!.id, ctx.state.lastMessageId, undefined, ctx.state.lastMessageText)
+    ctx.state.userName = text
+    ctx.reply(`${names[0]} ${names[1]}, все верно?`, confirmNameKeyboard)
+  }
+})
+
+introScene.action(KeyboardAction.name_confirm, async (ctx: SceneContextMessageUpdate) => {
+  const chatId = ctx.chat?.id.toString()
+  if (!chatId) { return }
+
+  ctx.state.waitingForName = false
+  let names = ctx.state.userName.split(' ')
+
+  const user = {
+    chatId: chatId,
+    firstName: names[0] || '',
+    lastName: names[1] || '',
+    discount: 0
+  }
+
+  UserModel.create(user).then(newUser => {
+    ctx.state.userModel = newUser
+    ctx.reply(`Отлично, ${user.firstName}, больше никаких вопросов!`, Markup.inlineKeyboard(
+      [Markup.callbackButton('В меню', KeyboardAction.menu)]
+    ).extra())
+  })
+})
+*/
 exports.default = introScene;
 //# sourceMappingURL=index.js.map

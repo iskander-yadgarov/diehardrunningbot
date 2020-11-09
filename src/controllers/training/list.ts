@@ -1,7 +1,7 @@
 import { BaseScene, Markup, Extra } from "telegraf"
 import { SceneContextMessageUpdate } from "telegraf/typings/stage"
 import strings from '../../resources/strings'
-import { Scene, SceneManager } from '../scenes'
+import { Scene } from '../scenes'
 import { BookingModel } from '../../models/bookings/bookings.model'
 import { IEvent } from '../../models/events/events.types'
 import { ExtraInvoice, ExtraReplyMessage, InlineKeyboardMarkup, NewInvoiceParameters } from "telegraf/typings/telegram-types"
@@ -23,7 +23,7 @@ const keyboard = Markup.inlineKeyboard([
 keyboard.parse_mode = "Markdown"
 
 userListScene.enter(async (ctx: SceneContextMessageUpdate) => {
-    let event = ctx.scene.state as any
+    let event = ctx.session.selectedEvent as any
     let eventId = event._id as String
 
     BookingModel.find({ 'eventId': eventId }).exec((error, bookings) => {
@@ -50,14 +50,14 @@ userListScene.enter(async (ctx: SceneContextMessageUpdate) => {
             } else {
                 listOfUsers = 'Пока никто не записался.'
             }
-            
+
             ctx.editMessageText(listOfUsers, keyboard)
         })
     })
 })
 
 userListScene.action(KeyboardAction.back, (ctx: SceneContextMessageUpdate) => {
-    SceneManager.back(ctx, ctx.scene.state as any)
+    ctx.scene.enter(Scene.trainingPage)
 })
 
 export default userListScene

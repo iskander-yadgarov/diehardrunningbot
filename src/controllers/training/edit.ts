@@ -1,7 +1,7 @@
 import { BaseScene, Markup, Extra } from "telegraf"
 import { SceneContextMessageUpdate } from "telegraf/typings/stage"
 import strings from '../../resources/strings'
-import { Scene, SceneManager } from '../scenes'
+import { Scene } from '../scenes'
 import { BookingModel } from '../../models/bookings/bookings.model'
 import { IEvent } from '../../models/events/events.types'
 import { InlineKeyboardMarkup } from "telegraf/typings/telegram-types"
@@ -33,8 +33,6 @@ enum KeyboardAction {
 }
 
 const trainingEditScene = new BaseScene(Scene.trainingEdit)
-// let requested: Requested = Requested.none
-// let eventToEdit: IEvent
 
 const keyboard = Markup.inlineKeyboard([
     [Markup.callbackButton('Изменить имя', KeyboardAction.editTrainingName)],
@@ -48,18 +46,12 @@ const keyboard = Markup.inlineKeyboard([
 
 
 trainingEditScene.enter(async (ctx: SceneContextMessageUpdate) => {
-    ctx.session.eventToEdit = ctx.scene.state as IEvent
-    if (ctx.session.eventToEdit == undefined) {
-        SceneManager.back(ctx)
-        return
-    }
-    ctx.session.requested = Requested.none
-    // ctx.session.event 
+    ctx.scene.state.requested = Requested.none
     buildMenu(ctx)
 })
 
 function buildMenu(ctx: SceneContextMessageUpdate, newMessage: boolean = false) {
-    const event = ctx.session.eventToEdit
+    const event = ctx.session.selectedEvent
     const localizedDate = `${event.date.getStringFullDate()}, ${event.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`
 
     let text = `*Информация о тренировке:*\n
@@ -79,31 +71,31 @@ function buildMenu(ctx: SceneContextMessageUpdate, newMessage: boolean = false) 
 }
 
 trainingEditScene.action(KeyboardAction.backAction, (ctx: SceneContextMessageUpdate) => {
-    SceneManager.back(ctx, ctx.scene.state as object)
+    ctx.scene.enter(Scene.trainingPage)
 })
 
 trainingEditScene.action(KeyboardAction.editTrainingName, (ctx: SceneContextMessageUpdate) => {
-    ctx.session.requested = Requested.name
+    ctx.scene.state.requested = Requested.name
     ctx.reply(`Введите новое название:`)
 })
 
 trainingEditScene.action(KeyboardAction.editTrainingCapacity, (ctx: SceneContextMessageUpdate) => {
-    ctx.session.requested = Requested.capacity
+    ctx.scene.state.requested = Requested.capacity
     ctx.reply(`Введите новое кол-во мест:`)
 })
 
 trainingEditScene.action(KeyboardAction.editTrainingPrice, (ctx: SceneContextMessageUpdate) => {
-    ctx.session.requested = Requested.price
+    ctx.scene.state.requested = Requested.price
     ctx.reply(`Введите новую стоимость:`)
 })
 
 trainingEditScene.action(KeyboardAction.editTrainingDate, (ctx: SceneContextMessageUpdate) => {
-    ctx.session.requested = Requested.date
+    ctx.scene.state.requested = Requested.date
     ctx.reply(`Введите новую дату:`)
 })
 
 trainingEditScene.action(KeyboardAction.editTrainingLocation, (ctx: SceneContextMessageUpdate) => {
-    ctx.session.requested = Requested.location
+    ctx.scene.state.requested = Requested.location
     ctx.reply(`Введите новый адресс:`)
 })
 
@@ -112,13 +104,13 @@ trainingEditScene.on('text', (ctx: SceneContextMessageUpdate, next: Function) =>
     let message = ''
     let haveToUpdate = false
 
-    switch (ctx.session.requested) {
+    switch (ctx.scene.state.requested) {
         case Requested.name:
             const name = text
             if (name == '') {
                 message = `Неверный формат.\nВы указали: ${name}`
             } else {
-                ctx.session.eventToEdit.name = name
+                ctx.session.selectedEvent.name = name
                 haveToUpdate = true
                 message = `Название успешно изменено.`
             }
@@ -126,13 +118,13 @@ trainingEditScene.on('text', (ctx: SceneContextMessageUpdate, next: Function) =>
         case Requested.date:
             const date = text.splitByTimeAndDate()
 
-            if (date == undefined) {
+            if (date == undefined || !date.isValid()) {
                 message = 'Неверный формат данных. (HH:MM DD:MM)'
             } else if (date < new Date()) {
                 const humanReadableDate = `${date.toLocaleTimeString()} ${date.toLocaleDateString()}`
                 message = `Нельзя указывать прошедшую дату.\nВы указали: ${humanReadableDate}`
             } else {
-                ctx.session.eventToEdit.date = date
+                ctx.session.selectedEvent.date = date
                 haveToUpdate = true
                 message = `Дата успешно изменена.`
             }
@@ -142,7 +134,7 @@ trainingEditScene.on('text', (ctx: SceneContextMessageUpdate, next: Function) =>
             if (address == '') {
                 message = `Неверный формат.\nВы указали: ${address}`
             } else {
-                ctx.session.eventToEdit.address = address
+                ctx.session.selectedEvent.address = address
                 haveToUpdate = true
                 message = `Адресс успешно изменен.`
             }
@@ -152,7 +144,7 @@ trainingEditScene.on('text', (ctx: SceneContextMessageUpdate, next: Function) =>
             if (isNaN(capacity) || capacity <= 0) {
                 message = `Неверный формат. Кол-во мест должно быть числом, больше нуля.\nВы указали: ${text}`
             } else {
-                ctx.session.eventToEdit.capacity = capacity
+                ctx.session.selectedEvent.capacity = capacity
                 haveToUpdate = true
                 message = `Кол-во мест успешно изменено.`
             }
@@ -162,21 +154,21 @@ trainingEditScene.on('text', (ctx: SceneContextMessageUpdate, next: Function) =>
             if (isNaN(price) || price < 0) {
                 message = `Неверный формат. Цена должна быть числом, больше или равно нулю.\nВы указали: ${text}`
             } else {
-                ctx.session.eventToEdit.price = price
+                ctx.session.selectedEvent.price = price
                 haveToUpdate = true
                 message = `Цена успешно изменена.`
             }
             break
         case Requested.none:
+        default:
             message = 'Выберите параметр для изменения'
-            return
+            break
     }
 
     if (haveToUpdate) {
-        EventModel.updateOne({ '_id': (ctx.session.eventToEdit as any)._id }, ctx.session.eventToEdit).exec(async (error) => {
+        EventModel.updateOne({ '_id': (ctx.session.selectedEvent as any)._id }, ctx.session.selectedEvent).exec(async (error) => {
             if (error) return // handle error
-            // ctx.reply(message)
-            ctx.session.requested = Requested.none
+            ctx.scene.state.requested = Requested.none
             buildMenu(ctx, true)
         })
     } else {
@@ -187,17 +179,16 @@ trainingEditScene.on('text', (ctx: SceneContextMessageUpdate, next: Function) =>
 
 trainingEditScene.action(KeyboardAction.deleteTraining, (ctx: SceneContextMessageUpdate) => {
     const buttons = Markup.inlineKeyboard([
-        [Markup.callbackButton('Да', KeyboardAction.confirmDeleting),
-        Markup.callbackButton('Нет', KeyboardAction.cancelDeleting)]
+        [Markup.callbackButton('Нет', KeyboardAction.cancelDeleting),
+        Markup.callbackButton('Да', KeyboardAction.confirmDeleting)]
     ]);
 
     ctx.editMessageText('Вы уверены что хотите удалить эту тренировку?', buttons.extra())
-    // ctx.reply('Вы уверены что хотите удалить эту тренировку?', Markup.keyboard(['Да', 'Нет'], { columns: 2 }).oneTime(true).resize().extra())
 })
 
 trainingEditScene.action(KeyboardAction.confirmDeleting, async (ctx: SceneContextMessageUpdate) => {
 
-    let event = ctx.scene.state as any
+    let event = ctx.session.selectedEvent as any
     let eventId = event._id as String
 
     EventModel.findByIdAndDelete(eventId).exec(async (error) => {
@@ -205,14 +196,14 @@ trainingEditScene.action(KeyboardAction.confirmDeleting, async (ctx: SceneContex
             if (error) return // todo handle error
 
             ctx.deleteMessage()
-            ctx.reply('Тренировка успешно удалена.').then(() => SceneManager.back(ctx))
+            ctx.reply('Тренировка успешно удалена.\nИспользуйте команду /menu').then(() => ctx.scene.enter(Scene.schedule))
 
         })
     })
 })
 
 trainingEditScene.action(KeyboardAction.cancelDeleting, async (ctx: SceneContextMessageUpdate) => {
-    SceneManager.back(ctx)
+    ctx.scene.reenter()
 })
 
 

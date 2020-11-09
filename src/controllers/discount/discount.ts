@@ -1,7 +1,7 @@
 import { BaseScene, Markup, Extra } from "telegraf"
 import { SceneContextMessageUpdate } from "telegraf/typings/stage"
 import strings from '../../resources/strings'
-import { Scene, SceneManager } from '../scenes'
+import { Scene } from '../scenes'
 import { UserModel } from '../../models/users/users.model'
 import { IUser, IUserDocument } from "../../models/users/users.types"
 import { DiscountModel } from "../../models/discounts/discounts.model"
@@ -58,7 +58,7 @@ discountScene.on('text', (ctx: SceneContextMessageUpdate) => {
         console.log(names)
         UserModel.find({'firstName': names[0], 'lastName': names[1]}).exec( async(error, users) => {
             if (error) return // handle
-            
+
             if (users.length == 0) { // not found
                 ctx.reply('Мы не нашли никого по такому имени 😔')
             } else if (users.length > 1) { // found more than one
@@ -101,7 +101,7 @@ discountScene.on('contact', (ctx: SceneContextMessageUpdate) => {
 
     UserModel.findOne({'chatId': userId.toString()}).exec(async (error, user) => {
         if (error) { console.log('error with UserModel.findOne: ' + userId) }  // handle
-        
+
         if (user) {
             ctx.session.userForDiscount = user
             ctx.reply(`Введи скидку для ${user.firstName} ${user.lastName}. От 0 до 100%.`)
@@ -129,7 +129,7 @@ discountScene.action(KeyboardAction.discount_cancel, async (ctx: SceneContextMes
 })
 
 discountScene.action(KeyboardAction.discount_list, async (ctx: SceneContextMessageUpdate) => {
-    
+
     UserModel.find({}).exec( async(error, users) => {
         if (error) return
 
@@ -140,15 +140,15 @@ discountScene.action(KeyboardAction.discount_list, async (ctx: SceneContextMessa
         })
         ctx.reply(list)
     })
-    
+
 })
 
 discountScene.action(KeyboardAction.create_coupon, async (ctx: SceneContextMessageUpdate) => {
-    
+
 })
 
 discountScene.action(KeyboardAction.back_menu, async (ctx: SceneContextMessageUpdate) => {
-    SceneManager.back(ctx)
+  ctx.scene.enter(Scene.menu)
 })
 
 export default discountScene

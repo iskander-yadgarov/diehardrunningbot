@@ -1,7 +1,7 @@
 import { BaseScene, Markup, Extra } from "telegraf"
 import { SceneContextMessageUpdate } from "telegraf/typings/stage"
 import strings from '../../resources/strings'
-import { Scene, SceneManager } from '../scenes'
+import { Scene } from '../scenes'
 import { BookingModel } from '../../models/bookings/bookings.model'
 import { IEvent } from '../../models/events/events.types'
 import { ExtraInvoice, ExtraReplyMessage, InlineKeyboardMarkup, NewInvoiceParameters } from "telegraf/typings/telegram-types"
@@ -51,20 +51,14 @@ const editButton = Markup.callbackButton(strings.training_page.buttons.change_tr
 // let keyboardExtra: ExtraReplyMessage
 
 trainingPageScene.enter(async (ctx: SceneContextMessageUpdate) => {
-    console.log('trainingPageScene enter!', ctx.scene.state)
-    if (Object.keys(ctx.scene.state).length == 0) {  // if we delete training it will throw us back
-        SceneManager.back(ctx)
-        return
-    }
 
     if (ctx.chat == undefined) return
     const userId = ctx.chat.id.toString()
-    let event = ctx.scene.state as any
-    event.date = new Date(event.date) // fast fix to make sure that our date in corrent format
+    let event = ctx.session.selectedEvent as any
 
     const alreadyPassed = new Date() > event.date
-    const capacity: number = event.capacity || 10
-    const initPrice: number = event.price || 600
+    const capacity: number = event.capacity
+    const initPrice: number = event.price
 
     // const discount = (await UserModel.findOne({'chatId': userId}).exec())?.discount.valueOf() || 0
     // const userPrice = (1 - discount) * event.price
@@ -74,7 +68,6 @@ trainingPageScene.enter(async (ctx: SceneContextMessageUpdate) => {
         if (error) return // todo handle error
 
         let alreadyBooked = false
-
         for (let b of bookings) {
             if (b.userId == userId) {
                 alreadyBooked = true
@@ -111,12 +104,10 @@ trainingPageScene.enter(async (ctx: SceneContextMessageUpdate) => {
 
         ctx.editMessageText(initialText, extra)
     })
-
-
 })
 
 trainingPageScene.action(KeyboardAction.backAction, (ctx: SceneContextMessageUpdate) => {
-    SceneManager.back(ctx)
+    ctx.scene.enter(Scene.schedule)
 })
 
 trainingPageScene.action(KeyboardAction.bookTraining, (ctx: SceneContextMessageUpdate) => {
@@ -124,7 +115,7 @@ trainingPageScene.action(KeyboardAction.bookTraining, (ctx: SceneContextMessageU
     if (ctx.chat == undefined) return
 
     let userId = ctx.chat.id.toString()
-    let event = ctx.scene.state as any
+    let event = ctx.session.selectedEvent as any
     let eventId = event._id as String
 
     // check if we already have this booking
@@ -157,7 +148,7 @@ trainingPageScene.action(KeyboardAction.bookTraining, (ctx: SceneContextMessageU
                 status: 1
             }
 
-            // do we need 'await' here? 
+            // do we need 'await' here?
             BookingModel.create(booking).then(_ => {
                 // ctx.reply(`Ждем тебя на тренировке. 😉`)
                 ctx.scene.reenter()
@@ -170,17 +161,14 @@ trainingPageScene.action(KeyboardAction.cancelTraining, async (ctx: SceneContext
     if (ctx.chat == undefined) return
 
     let userId = ctx.chat.id.toString()
-    // let event = ctx.scene.state as any
-    let eventId = (ctx.scene.state as any)._id as String
+    let eventId = (ctx.session.selectedEvent as any)._id as String
 
-    BookingModel.deleteOne({'eventId': eventId, 'userId': userId}).exec(async (error) => {
-        if (error) return // todo handle
-        ctx.scene.reenter()
-    })
+    const _ = await BookingModel.deleteOne({'eventId': eventId, 'userId': userId}).exec()
+    ctx.scene.reenter()
 })
 
 trainingPageScene.action(KeyboardAction.showAll, (ctx: SceneContextMessageUpdate) => {
-    SceneManager.enter(ctx, Scene.userListPage, ctx.scene.state)
+    ctx.scene.enter(Scene.userListPage)
 })
 
 // PAYMENTS
@@ -214,8 +202,7 @@ trainingPageScene.action(KeyboardAction.payment_cancel, (ctx: SceneContextMessag
 // admin actions
 
 trainingPageScene.action(KeyboardAction.editTraining, async (ctx: SceneContextMessageUpdate) => {
-    const event = ctx.scene.state as any
-    SceneManager.enter(ctx, Scene.trainingEdit, event)
+    ctx.scene.enter(Scene.trainingEdit)
 })
 
 

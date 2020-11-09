@@ -13,6 +13,7 @@ declare global {
         getStringDay(): string;
         getStringDayMonth(): string;
         addHours(h: number): Date;
+        isValid(): boolean;
     }
 }
 
@@ -78,4 +79,8 @@ Date.prototype.getStringDay = function (): string {
 Date.prototype.addHours = function(h) {
     this.setTime(this.getTime() + (h*60*60*1000));
     return this;
+}
+
+Date.prototype.isValid = function (): boolean {
+    return !isNaN(this.getDate());
 }
