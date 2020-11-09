@@ -32,7 +32,7 @@ archiveScene.enter((ctx) => {
         // console.log('passed events:', events)
         let dynamicBtns = [];
         events.forEach(e => {
-            const localizedDate = `${e.date.getStringDayMonth()} ${e.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+            const localizedDate = `${e.date.getStringDayMonth()} ${e.date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
             let btn = [telegraf_1.Markup.callbackButton(localizedDate, KeyboardAction.openTraining + e._id, false)];
             dynamicBtns.push(btn);
         });

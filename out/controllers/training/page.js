@@ -75,7 +75,7 @@ trainingPageScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () 
         let initialText = `*Информация о тренировке:*\n
 Тренировка: ${event.name}
 Дата: ${event.date.getStringDate()}
-Время: ${event.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+Время: ${event.date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
 Локация: ${event.address}
 Стоимость: ${initPrice} ₽`;
         let keyboards = [];

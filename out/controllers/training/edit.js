@@ -54,7 +54,7 @@ trainingEditScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () 
 }));
 function buildMenu(ctx, newMessage = false) {
     const event = ctx.session.selectedEvent;
-    const localizedDate = `${event.date.getStringFullDate()}, ${event.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+    const localizedDate = `${event.date.getStringFullDate()}, ${event.date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
     let text = `*Информация о тренировке:*\n
 Имя: ${event.name}
 Дата и время: ${localizedDate}

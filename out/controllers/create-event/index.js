@@ -88,7 +88,7 @@ createEventScene.on('text', (ctx, next) => __awaiter(void 0, void 0, void 0, fun
                 message = 'Неверный формат данных';
             }
             else {
-                const localizedDate = `${date.getStringFullDate()}, ${date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+                const localizedDate = `${date.getStringFullDate()}, ${date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
                 if (date < new Date()) {
                     message = `Нельзя указывать прошедшую дату.\nВы указали: ${localizedDate}`;
                 }
@@ -165,7 +165,7 @@ function eventDescription(event) {
         description += `Событие: ${event.name}\n`;
     }
     if (event.date !== undefined) {
-        const localizedDate = `${event.date.getStringFullDate()}, ${event.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+        const localizedDate = `${event.date.getStringFullDate()}, ${event.date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
         description += `Дата: ${localizedDate}\n`;
     }
     if (event.address !== undefined && event.address.length > 0) {
