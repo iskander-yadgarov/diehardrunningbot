@@ -29,7 +29,7 @@ archiveScene.enter((ctx) => {
             console.log(`error for fetching events in archive: ${error}`);
             return;
         }
-        console.log('passed events:', events);
+        // console.log('passed events:', events)
         let dynamicBtns = [];
         events.forEach(e => {
             const localizedDate = `${e.date.getStringDayMonth()} ${e.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
@@ -45,21 +45,18 @@ archiveScene.enter((ctx) => {
         }
     }));
 });
-archiveScene.action(new RegExp(`^${KeyboardAction.openTraining}`), (ctx) => {
+archiveScene.action(new RegExp(`^${KeyboardAction.openTraining}`), (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     let data = (_a = ctx.callbackQuery) === null || _a === void 0 ? void 0 : _a.data;
     let id = data === null || data === void 0 ? void 0 : data.split('-')[1];
-    events_model_1.EventModel.findOne({ '_id': id }).exec((error, event) => __awaiter(void 0, void 0, void 0, function* () {
-        if (error || !event || !ctx.chat)
-            return; // todo handle errors
-        // console.log(event)
-        // let chatId = ctx.chat.id.toString()
-        // go to scene 'pageTraining'
-        scenes_1.SceneManager.enter(ctx, scenes_1.Scene.trainingPage, event._doc);
-    }));
-});
+    var promise = events_model_1.EventModel.findOne({ '_id': id }).exec();
+    var result = yield promise;
+    if (result === undefined)
+        return;
+    ctx.scene.enter(scenes_1.Scene.trainingPage);
+}));
 archiveScene.action(KeyboardAction.back, (ctx) => {
-    scenes_1.SceneManager.back(ctx);
+    ctx.scene.enter(scenes_1.Scene.schedule);
 });
 exports.default = archiveScene;
 //# sourceMappingURL=archive.js.map

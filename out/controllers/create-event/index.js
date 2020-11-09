@@ -38,37 +38,36 @@ const keyboardCompleted = telegraf_1.Markup.inlineKeyboard([
 ]);
 const postKeyboard = telegraf_1.Markup.inlineKeyboard([
     [telegraf_1.Markup.callbackButton('Создать еще', KeyboardAction.retry)],
-    [telegraf_1.Markup.callbackButton('Главное меню', KeyboardAction.menu)]
+    [telegraf_1.Markup.callbackButton('Меню', KeyboardAction.menu)]
 ]);
 createEventScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () {
     const nextRequest = nextRequestFor(undefined);
-    ctx.session.createEventState = nextRequest;
-    ctx.session.rawEvent = {};
+    ctx.scene.state.createEventState = nextRequest;
+    ctx.scene.state.rawEvent = {};
     if (ctx.updateType == 'callback_query') {
         ctx.deleteMessage();
     }
-    ctx.session.lastMessageText = eventDescription(undefined) + '\n' + requestDescription(nextRequest);
-    ctx.session.lastMessageId = (yield ctx.reply(ctx.session.lastMessageText, keyboardPlain.extra())).message_id;
+    ctx.scene.state.lastMessageText = eventDescription(undefined) + '\n' + requestDescription(nextRequest);
+    ctx.scene.state.lastMessageId = (yield ctx.reply(ctx.scene.state.lastMessageText, keyboardPlain.extra())).message_id;
 }));
-createEventScene.leave((ctx) => {
-    ctx.session.createEventState = {};
-});
+// createEventScene.leave((ctx: SceneContextMessageUpdate) => {
+// ctx.scene.state.createEventState = {}
+// })
 createEventScene.action(KeyboardAction.cancel, (ctx) => {
-    ctx.session.createEventState = undefined;
-    ctx.session.rawEvent = undefined;
-    scenes_1.SceneManager.open(ctx, scenes_1.Scene.intro);
-    // ctx.editMessageText('Создание отменено.', postKeyboard.extra())
+    // ctx.scene.state.createEventState = undefined
+    // ctx.scene.state.rawEvent = undefined
+    ctx.scene.enter(scenes_1.Scene.schedule);
 });
 createEventScene.action(KeyboardAction.retry, (ctx) => {
     ctx.scene.reenter();
 });
 createEventScene.action(KeyboardAction.menu, (ctx) => {
-    scenes_1.SceneManager.open(ctx, scenes_1.Scene.intro);
+    ctx.scene.enter(scenes_1.Scene.schedule);
 });
 createEventScene.action(KeyboardAction.publish, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     // publish training
     // get event from context
-    let event = ctx.session.rawEvent;
+    let event = ctx.scene.state.rawEvent;
     // todo check if valid
     events_model_1.EventModel.create(event).then(_ => {
         ctx.editMessageText(`Отлично, событие опубликовано 👍`, postKeyboard.extra());
@@ -77,15 +76,15 @@ createEventScene.action(KeyboardAction.publish, (ctx) => __awaiter(void 0, void 
 createEventScene.on('text', (ctx, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const text = ((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.text) || '/';
-    const state = ctx.session.createEventState;
+    const state = ctx.scene.state.createEventState;
     if (text[0] == '/')
         return;
-    let event = ctx.session.rawEvent;
+    let event = ctx.scene.state.rawEvent;
     let message = '';
     switch (state) {
         case Request.date: {
             const date = text.splitByTimeAndDate(); //splitByTimeAndDate(text)
-            if (date == undefined) {
+            if (date == undefined || !date.isValid()) {
                 message = 'Неверный формат данных';
             }
             else {
@@ -96,7 +95,7 @@ createEventScene.on('text', (ctx, next) => __awaiter(void 0, void 0, void 0, fun
                 else {
                     event.date = date;
                     const nextRequest = nextRequestFor(event);
-                    ctx.session.createEventState = nextRequest;
+                    ctx.scene.state.createEventState = nextRequest;
                     message = eventDescription(event) + '\n' + requestDescription(nextRequest);
                 }
             }
@@ -105,14 +104,14 @@ createEventScene.on('text', (ctx, next) => __awaiter(void 0, void 0, void 0, fun
         case Request.name: {
             event.name = text;
             const nextRequest = nextRequestFor(event);
-            ctx.session.createEventState = nextRequest;
+            ctx.scene.state.createEventState = nextRequest;
             message = eventDescription(event) + '\n' + requestDescription(nextRequest);
             break;
         }
         case Request.location: {
             event.address = text;
             const nextRequest = nextRequestFor(event);
-            ctx.session.createEventState = nextRequest;
+            ctx.scene.state.createEventState = nextRequest;
             message = eventDescription(event) + '\n' + requestDescription(nextRequest);
             break;
         }
@@ -124,7 +123,7 @@ createEventScene.on('text', (ctx, next) => __awaiter(void 0, void 0, void 0, fun
             else {
                 event.price = price;
                 const nextRequest = nextRequestFor(event);
-                ctx.session.createEventState = nextRequest;
+                ctx.scene.state.createEventState = nextRequest;
                 message = eventDescription(event) + '\n' + requestDescription(nextRequest);
             }
             break;
@@ -137,7 +136,7 @@ createEventScene.on('text', (ctx, next) => __awaiter(void 0, void 0, void 0, fun
             else {
                 event.capacity = capacity;
                 const nextRequest = nextRequestFor(event);
-                ctx.session.createEventState = nextRequest;
+                ctx.scene.state.createEventState = nextRequest;
                 message = eventDescription(event) + '\n' + requestDescription(nextRequest);
             }
             break;
@@ -150,10 +149,11 @@ createEventScene.on('text', (ctx, next) => __awaiter(void 0, void 0, void 0, fun
             return;
     }
     // remove inline keyboards from previous message
-    ctx.telegram.editMessageText(ctx.chat.id, ctx.session.lastMessageId, undefined, ctx.session.lastMessageText);
-    ctx.session.lastMessageText = message;
-    ctx.session.lastMessageId = (yield ctx.reply(message, ctx.session.createEventState == Request.none ? keyboardCompleted.extra() : keyboardPlain.extra())).message_id;
-    ctx.session.rawEvent = event;
+    // ctx.telegram.editMessageText(ctx.chat!.id, ctx.scene.state.lastMessageId, undefined, ctx.scene.state.lastMessageText)
+    // ctx.scene.state.lastMessageText = message
+    // ctx.scene.state.lastMessageId = (await
+    ctx.reply(message, ctx.scene.state.createEventState == Request.none ? keyboardCompleted.extra() : keyboardPlain.extra());
+    ctx.scene.state.rawEvent = event;
     return next();
 }));
 function eventDescription(event) {

@@ -22,7 +22,7 @@ export interface SceneContext<TContext extends SceneContextMessageUpdate> {
     expires?: number
   }
 
-  state: object
+  state: any
 
   readonly current: BaseScene<TContext> | null
 

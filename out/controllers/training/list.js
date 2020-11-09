@@ -23,7 +23,7 @@ const keyboard = telegraf_1.Markup.inlineKeyboard([
 ]).extra();
 keyboard.parse_mode = "Markdown";
 userListScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    let event = ctx.scene.state;
+    let event = ctx.session.selectedEvent;
     let eventId = event._id;
     bookings_model_1.BookingModel.find({ 'eventId': eventId }).exec((error, bookings) => {
         if (error)
@@ -53,7 +53,7 @@ userListScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () {
     });
 }));
 userListScene.action(KeyboardAction.back, (ctx) => {
-    scenes_1.SceneManager.back(ctx, ctx.scene.state);
+    ctx.scene.enter(scenes_1.Scene.trainingPage);
 });
 exports.default = userListScene;
 //# sourceMappingURL=list.js.map

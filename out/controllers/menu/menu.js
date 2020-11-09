@@ -12,6 +12,7 @@ var KeyboardAction;
 (function (KeyboardAction) {
     KeyboardAction["schedule"] = "open_schedule";
     KeyboardAction["my_bookings"] = "open_my_bookings";
+    KeyboardAction["test"] = "test-page";
     // admin's
     KeyboardAction["archive"] = "open_archive";
     KeyboardAction["create_event"] = "create_event";
@@ -19,7 +20,7 @@ var KeyboardAction;
 })(KeyboardAction || (KeyboardAction = {}));
 const userBtns = [
     [telegraf_1.Markup.callbackButton(strings_1.default.menu_scene.buttons.my_bookings, KeyboardAction.my_bookings),
-        telegraf_1.Markup.callbackButton(strings_1.default.menu_scene.buttons.schedule, KeyboardAction.schedule)]
+        telegraf_1.Markup.callbackButton(strings_1.default.menu_scene.buttons.schedule, KeyboardAction.schedule)],
 ];
 const adminBtns = [
     [telegraf_1.Markup.callbackButton(strings_1.default.menu_scene.buttons.create_event, KeyboardAction.create_event),
@@ -27,7 +28,7 @@ const adminBtns = [
     // Markup.callbackButton(strings.menu_scene.buttons.create_discount, KeyboardAction.create_discount)]
 ];
 menuScene.enter((ctx) => {
-    // console.log(ctx)
+    console.log('enter in menu');
     if (ctx.chat == undefined)
         return;
     let userId = ctx.chat.id.toString();
@@ -44,10 +45,10 @@ menuScene.enter((ctx) => {
         ctx.editMessageText(strings_1.default.menu_scene.message, extra);
     }
 });
-menuScene.action(KeyboardAction.schedule, (ctx) => scenes_1.SceneManager.enter(ctx, scenes_1.Scene.schedule));
-menuScene.action(KeyboardAction.my_bookings, (ctx) => scenes_1.SceneManager.enter(ctx, scenes_1.Scene.userTrainings));
-menuScene.action(KeyboardAction.archive, (ctx) => scenes_1.SceneManager.enter(ctx, scenes_1.Scene.archiveScene));
-menuScene.action(KeyboardAction.create_event, (ctx) => scenes_1.SceneManager.enter(ctx, scenes_1.Scene.createEvent));
-menuScene.action(KeyboardAction.create_discount, (ctx) => scenes_1.SceneManager.enter(ctx, scenes_1.Scene.discountSettings));
+menuScene.action(KeyboardAction.schedule, (ctx) => ctx.scene.enter(scenes_1.Scene.schedule));
+menuScene.action(KeyboardAction.my_bookings, (ctx) => ctx.scene.enter(scenes_1.Scene.userTrainings));
+menuScene.action(KeyboardAction.archive, (ctx) => ctx.scene.enter(scenes_1.Scene.archiveScene));
+menuScene.action(KeyboardAction.create_event, (ctx) => ctx.scene.enter(scenes_1.Scene.createEvent));
+menuScene.action(KeyboardAction.create_discount, (ctx) => ctx.scene.enter(scenes_1.Scene.discountSettings));
 exports.default = menuScene;
 //# sourceMappingURL=menu.js.map

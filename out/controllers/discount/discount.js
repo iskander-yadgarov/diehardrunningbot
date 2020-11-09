@@ -148,7 +148,7 @@ discountScene.action(KeyboardAction.discount_list, (ctx) => __awaiter(void 0, vo
 discountScene.action(KeyboardAction.create_coupon, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 discountScene.action(KeyboardAction.back_menu, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    scenes_1.SceneManager.back(ctx);
+    ctx.scene.enter(scenes_1.Scene.menu);
 }));
 exports.default = discountScene;
 //# sourceMappingURL=discount.js.map

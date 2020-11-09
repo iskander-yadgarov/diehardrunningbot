@@ -63,14 +63,15 @@ trainingScene.action(new RegExp(`^${KeyboardAction.openTraining}`), (ctx) => __a
     var _a;
     let data = (_a = ctx.callbackQuery) === null || _a === void 0 ? void 0 : _a.data;
     let id = data === null || data === void 0 ? void 0 : data.split('-')[1];
-    events_model_1.EventModel.findById(id).exec((error, event) => __awaiter(void 0, void 0, void 0, function* () {
-        if (error || !event)
-            return; // todo handle errors
-        scenes_1.SceneManager.enter(ctx, scenes_1.Scene.trainingPage, event._doc);
-    }));
+    const promise = events_model_1.EventModel.findById(id).exec();
+    var result = yield promise;
+    if (result === undefined)
+        return;
+    ctx.session.selectedEvent = result._doc;
+    ctx.scene.enter(scenes_1.Scene.trainingPage);
 }));
 trainingScene.action(KeyboardAction.back, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    scenes_1.SceneManager.back(ctx);
+    ctx.scene.enter(scenes_1.Scene.menu);
 }));
 exports.default = trainingScene;
 //# sourceMappingURL=index.js.map

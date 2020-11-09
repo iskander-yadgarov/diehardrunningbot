@@ -8,86 +8,108 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const telegraf_1 = require("telegraf");
 const events_model_1 = require("../../models/events/events.model");
-const strings_1 = __importDefault(require("../../resources/strings"));
 const scenes_1 = require("../scenes");
+const bookings_model_1 = require("../../models/bookings/bookings.model");
 var KeyboardAction;
 (function (KeyboardAction) {
-    KeyboardAction["back"] = "back_action";
     KeyboardAction["openTraining"] = "open_training-";
 })(KeyboardAction || (KeyboardAction = {}));
 const scheduleScene = new telegraf_1.BaseScene(scenes_1.Scene.schedule);
-const backKeyboard = [telegraf_1.Markup.callbackButton(strings_1.default.general.back, KeyboardAction.back, false)];
 scheduleScene.enter((ctx) => {
-    // await ctx.editMessageText(strings.start_scene.message, keyboard.extra())
-    buildSchedule(ctx);
-});
-// startScene.action(KeyboardAction.showTrainingSchedule, (ctx: SceneContextMessageUpdate) => {
-function buildSchedule(ctx) {
+    var _a;
+    const userId = (_a = ctx.chat) === null || _a === void 0 ? void 0 : _a.id.toString();
+    if (!userId)
+        return;
     // todo find only for today and after: { 'date': {$gte: start, $lt: until} }
-    events_model_1.EventModel.find({ 'date': { $gte: new Date(), $lt: new Date().addDays(7) } }).sort('date').exec((error, events) => __awaiter(this, void 0, void 0, function* () {
+    events_model_1.EventModel.find({ 'date': { $gte: new Date(), $lt: new Date().addDays(7) } }).sort('date').exec((error, events) => __awaiter(void 0, void 0, void 0, function* () {
         if (error) {
             console.log(`error for fetching events: ${error}`);
             return;
         }
+        let ids = [];
+        events.forEach(event => {
+            ids.push(event._id);
+        });
+        const promise = bookings_model_1.BookingModel.find({ 'eventId': { $in: ids }, 'userId': userId }).exec();
+        var result = yield promise;
         let dynamicButtons = [];
-        let row = [];
-        let maxCellPerRow = 5;
         for (let i = 0; i < events.length; i++) {
             let e = events[i];
-            // make a button
-            let btn = telegraf_1.Markup.callbackButton(e.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }), KeyboardAction.openTraining + e._id, false);
-            row.push(btn);
-            // if the last one OR the next event's day is not the same 
-            if (i == events.length - 1 || !e.date.isSameDate(events[i + 1].date)) {
-                // end a row
-                let seperatorTitle = [telegraf_1.Markup.callbackButton('👇 ' + e.date.getStringFullDate() + ' 👇', 'null', false)];
-                dynamicButtons.push(seperatorTitle);
-                // make layout if greater than maximum
-                let cellAmount = row.length;
-                if (cellAmount > maxCellPerRow) {
-                    let rowAmount = Math.ceil(cellAmount / maxCellPerRow);
-                    let perRow = Math.ceil(cellAmount / rowAmount);
-                    for (let x = 0; x < rowAmount; x++) {
-                        let newRow = row.slice(x * perRow, (x != rowAmount - 1) ? (x * perRow) + perRow : row.length);
-                        dynamicButtons.push(newRow);
-                    }
-                }
-                else {
-                    dynamicButtons.push(row);
-                }
-                row = []; // clean a row
+            // if first one OR the previous event's day is not the same
+            if (i == 0 || !events[i - 1].date.isSameDate(e.date)) {
+                // make a header
+                dynamicButtons.push([telegraf_1.Markup.callbackButton('👇 ' + e.date.getStringFullDate() + ' 👇', 'null')]);
             }
+            const time = e.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const booked = result.find(b => b.eventId == e._id) !== undefined;
+            const sign = booked ? '✅' : '☑️'; // ✅ or ☑️
+            // make a button
+            dynamicButtons.push([telegraf_1.Markup.callbackButton(`${sign}  ${time} – ${e.name}`, KeyboardAction.openTraining + e._id)]);
         }
-        dynamicButtons.push(backKeyboard);
         let extra = telegraf_1.Markup.inlineKeyboard(dynamicButtons).extra();
         extra.parse_mode = "MarkdownV2";
-        ctx.editMessageText(`Наше расписание на ближайшие 7 дней:`, extra).catch(() => ctx.reply(`Наше расписание на ближайшие дни:`, extra));
+        // console.log(ctx)
+        if (ctx.updateType == 'message') {
+            ctx.reply(`Наше расписание на ближайшие 7 дней:`, extra);
+        }
+        else {
+            ctx.editMessageText(`Наше расписание на ближайшие 7 дней:`, extra);
+        }
     }));
-}
+});
 // [0-9]*$
-scheduleScene.action(new RegExp(`^${KeyboardAction.openTraining}`), (ctx) => {
+scheduleScene.action(new RegExp(`^${KeyboardAction.openTraining}`), (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     let data = (_a = ctx.callbackQuery) === null || _a === void 0 ? void 0 : _a.data;
     let id = data === null || data === void 0 ? void 0 : data.split('-')[1];
-    events_model_1.EventModel.findOne({ '_id': id }).exec((error, event) => __awaiter(void 0, void 0, void 0, function* () {
-        if (error || !event || !ctx.chat)
-            return; // todo handle errors
-        // console.log(event)
-        // let chatId = ctx.chat.id.toString()
-        // go to scene 'pageTraining'
-        scenes_1.SceneManager.enter(ctx, scenes_1.Scene.trainingPage, event._doc);
-    }));
-});
-scheduleScene.action(KeyboardAction.back, (ctx) => {
-    scenes_1.SceneManager.back(ctx);
-});
+    const promise = events_model_1.EventModel.findOne({ '_id': id }).exec();
+    ctx.session.selectedEvent = yield promise;
+    ctx.scene.enter(scenes_1.Scene.trainingPage);
+}));
 /*
+
+CUSTOM DYNAMIC BUTTONS SCHEDULE LAYOUT
+
+let dynamicButtons:CallbackButton[][] = []
+let row: CallbackButton[] = [];
+let maxCellPerRow = 5
+
+for (let i = 0; i < events.length; i++) {
+    let e = events[i]
+
+    // make a button
+    let btn = Markup.callbackButton(e.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }), KeyboardAction.openTraining + e._id, false)
+    row.push(btn)
+
+    // if the last one OR the next event's day is not the same
+    if (i == events.length - 1 || !e.date.isSameDate(events[i + 1].date)) {
+        // end a row
+        let seperatorTitle = [Markup.callbackButton('👇 ' + e.date.getStringFullDate() + ' 👇', 'null', false)]
+        dynamicButtons.push(seperatorTitle)
+
+        // make layout if greater than maximum
+        let cellAmount = row.length
+        if (cellAmount > maxCellPerRow) {
+            let rowAmount = Math.ceil(cellAmount / maxCellPerRow)
+            let perRow = Math.ceil(cellAmount / rowAmount)
+
+            for (let x = 0; x < rowAmount; x++) {
+                let newRow = row.slice(x * perRow, (x != rowAmount - 1) ? (x * perRow) + perRow : row.length)
+                dynamicButtons.push(newRow)
+            }
+        } else {
+            dynamicButtons.push(row)
+        }
+
+        row = [] // clean a row
+    }
+}
+dynamicButtons.push(backKeyboard)
+
+
 EventModel.find({}).sort('date').exec(async (error, events) => {
     if (error) { console.log(`error for fetching events: ${error}`); return }
 
@@ -107,16 +129,16 @@ EventModel.find({}).sort('date').exec(async (error, events) => {
             // send already filled row
 
             let seperatorTitle = [Markup.callbackButton((previousDate as Date).getStringDate().toString(), 'null', false)]
-            
+
             dynamicButtons.push(seperatorTitle)
             dynamicButtons.push(row)
-            
+
             // ctx.reply(`Тренировки на ${(previousDate as Date).getStringDate() }:`, Markup.inlineKeyboard([row]).extra())
             // dynamicButtons = [];
             row = []
 
         }
- 
+
         previousDate = e.date
         let btn = Markup.callbackButton(e.date.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}), KeyboardAction.bookTraining + i.toString(), false)
         row.push(btn)
@@ -131,7 +153,7 @@ EventModel.find({}).sort('date').exec(async (error, events) => {
     }
 
     let seperatorTitle = [Markup.callbackButton((previousDate as Date).getStringDate().toString(), 'null', false)]
-            
+
     dynamicButtons.push(seperatorTitle)
     dynamicButtons.push(row)
 
@@ -154,17 +176,17 @@ ctx.editMessageText('Выберите день', Markup.inlineKeyboard(dayButton
 */
 /*
 startScene.action(/^show_training-[0-9]*$/, (ctx: SceneContextMessageUpdate) => {
-    
+
     // check
     if (ctx.callbackQuery == undefined) return
 
     // get day what we are looking
     let data = ctx.callbackQuery.data!
     let index = parseInt(data.split('-')[1])
-    
+
     let date = new Date()
     date = date.addDays(index)
-    
+
     let start = new Date(date.getFullYear(),date.getMonth(),date.getDate(),1,0,0);
     let end = new Date(date.getFullYear(),date.getMonth(),date.getDate()+1,0,59,59);
 
@@ -187,7 +209,7 @@ startScene.action(/^show_training-[0-9]*$/, (ctx: SceneContextMessageUpdate) => 
 
         ctx.editMessageText(`Вот доступные тренировки на ${date.toLocaleDateString()}:`, Markup.inlineKeyboard(dynamicButtons).extra())
     })
-    
+
 })
 */
 exports.default = scheduleScene;

@@ -51,19 +51,13 @@ const editButton = telegraf_1.Markup.callbackButton(strings_1.default.training_p
 // let initialText: string
 // let keyboardExtra: ExtraReplyMessage
 trainingPageScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('trainingPageScene enter!', ctx.scene.state);
-    if (Object.keys(ctx.scene.state).length == 0) { // if we delete training it will throw us back
-        scenes_1.SceneManager.back(ctx);
-        return;
-    }
     if (ctx.chat == undefined)
         return;
     const userId = ctx.chat.id.toString();
-    let event = ctx.scene.state;
-    event.date = new Date(event.date); // fast fix to make sure that our date in corrent format
+    let event = ctx.session.selectedEvent;
     const alreadyPassed = new Date() > event.date;
-    const capacity = event.capacity || 10;
-    const initPrice = event.price || 600;
+    const capacity = event.capacity;
+    const initPrice = event.price;
     // const discount = (await UserModel.findOne({'chatId': userId}).exec())?.discount.valueOf() || 0
     // const userPrice = (1 - discount) * event.price
     // check if already booked and count all participents
@@ -108,13 +102,13 @@ trainingPageScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () 
     }));
 }));
 trainingPageScene.action(KeyboardAction.backAction, (ctx) => {
-    scenes_1.SceneManager.back(ctx);
+    ctx.scene.enter(scenes_1.Scene.schedule);
 });
 trainingPageScene.action(KeyboardAction.bookTraining, (ctx) => {
     if (ctx.chat == undefined)
         return;
     let userId = ctx.chat.id.toString();
-    let event = ctx.scene.state;
+    let event = ctx.session.selectedEvent;
     let eventId = event._id;
     // check if we already have this booking
     bookings_model_1.BookingModel.find({ 'eventId': eventId }).exec((error, bookings) => __awaiter(void 0, void 0, void 0, function* () {
@@ -144,7 +138,7 @@ trainingPageScene.action(KeyboardAction.bookTraining, (ctx) => {
                 eventId: eventId,
                 status: 1
             };
-            // do we need 'await' here? 
+            // do we need 'await' here?
             bookings_model_1.BookingModel.create(booking).then(_ => {
                 // ctx.reply(`Ждем тебя на тренировке. 😉`)
                 ctx.scene.reenter();
@@ -156,16 +150,12 @@ trainingPageScene.action(KeyboardAction.cancelTraining, (ctx) => __awaiter(void 
     if (ctx.chat == undefined)
         return;
     let userId = ctx.chat.id.toString();
-    // let event = ctx.scene.state as any
-    let eventId = ctx.scene.state._id;
-    bookings_model_1.BookingModel.deleteOne({ 'eventId': eventId, 'userId': userId }).exec((error) => __awaiter(void 0, void 0, void 0, function* () {
-        if (error)
-            return; // todo handle
-        ctx.scene.reenter();
-    }));
+    let eventId = ctx.session.selectedEvent._id;
+    const _ = yield bookings_model_1.BookingModel.deleteOne({ 'eventId': eventId, 'userId': userId }).exec();
+    ctx.scene.reenter();
 }));
 trainingPageScene.action(KeyboardAction.showAll, (ctx) => {
-    scenes_1.SceneManager.enter(ctx, scenes_1.Scene.userListPage, ctx.scene.state);
+    ctx.scene.enter(scenes_1.Scene.userListPage);
 });
 // PAYMENTS
 /*
@@ -195,8 +185,7 @@ trainingPageScene.action(KeyboardAction.payment_cancel, (ctx: SceneContextMessag
 */
 // admin actions
 trainingPageScene.action(KeyboardAction.editTraining, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    const event = ctx.scene.state;
-    scenes_1.SceneManager.enter(ctx, scenes_1.Scene.trainingEdit, event);
+    ctx.scene.enter(scenes_1.Scene.trainingEdit);
 }));
 function generateKeyboardBasedOn(showToBook, admin) {
     let keyboard = showToBook ? [[backButton, bookButton]] : [[backButton]];
