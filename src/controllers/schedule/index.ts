@@ -51,9 +51,9 @@ scheduleScene.enter((ctx: SceneContextMessageUpdate) => {
             text = 'Пока нет никаких тренировок на ближайшие 7 дней.'
             dynamicButtons.push([Markup.callbackButton('Обновить', KeyboardAction.update)])
         }
-        
-        const localTime = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Moscow'})
-        text = `*Расписание (обновлено в ${localTime})*\n${text}`
+        //, timeZone: 'Europe/Moscow'
+        const localTime = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit'})
+        text = `*Расписание* [обновлено в ${localTime}]\n\n${text}`
 
         sendAnswer(ctx, text, dynamicButtons)
     })
