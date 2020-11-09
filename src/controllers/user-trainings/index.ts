@@ -42,7 +42,7 @@ trainingScene.enter(async (ctx: SceneContextMessageUpdate) => {
             let trainingsBtns: CallbackButton[][] = []
             events.forEach(event => {
 
-                let localizedDate = `${event.date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} ${event.date.getStringFullDate()}`
+                let localizedDate = `${event.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} ${event.date.getStringFullDate()}`
                 let btn = [Markup.callbackButton(localizedDate, KeyboardAction.openTraining + event._id)]
                 trainingsBtns.push(btn)
             });

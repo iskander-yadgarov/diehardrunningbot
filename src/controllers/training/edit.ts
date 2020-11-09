@@ -52,7 +52,7 @@ trainingEditScene.enter(async (ctx: SceneContextMessageUpdate) => {
 
 function buildMenu(ctx: SceneContextMessageUpdate, newMessage: boolean = false) {
     const event = ctx.session.selectedEvent
-    const localizedDate = `${event.date.getStringFullDate()}, ${event.date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`
+    const localizedDate = `${event.date.getStringFullDate()}, ${event.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`
 
     let text = `*Информация о тренировке:*\n
 Имя: ${event.name}

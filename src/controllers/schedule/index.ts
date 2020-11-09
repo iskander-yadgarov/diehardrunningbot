@@ -38,7 +38,7 @@ scheduleScene.enter((ctx: SceneContextMessageUpdate) => {
                 dynamicButtons.push([Markup.callbackButton('👇 ' + e.date.getStringFullDate() + ' 👇', 'null')])
             }
 
-            const time = e.date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+            const time = e.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
             const booked = result.find(b => b.eventId == e._id) !== undefined
             const sign = booked ? '✅' : '☑️' // ✅ or ☑️
             // make a button
@@ -52,8 +52,8 @@ scheduleScene.enter((ctx: SceneContextMessageUpdate) => {
             dynamicButtons.push([Markup.callbackButton('Обновить', KeyboardAction.update)])
         }
         //, timeZone: 'Europe/Moscow'
-        const localTime = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit'})
-        text = `*Расписание* [обновлено в ${localTime}]\n\n${text}`
+        const localTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit'})
+        text = `*Расписание:* \[обновлено в ${localTime}\]\n\n${text}`
 
         sendAnswer(ctx, text, dynamicButtons)
     })
@@ -96,7 +96,7 @@ for (let i = 0; i < events.length; i++) {
     let e = events[i]
 
     // make a button
-    let btn = Markup.callbackButton(e.date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }), KeyboardAction.openTraining + e._id, false)
+    let btn = Markup.callbackButton(e.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }), KeyboardAction.openTraining + e._id, false)
     row.push(btn)
 
     // if the last one OR the next event's day is not the same
@@ -155,7 +155,7 @@ EventModel.find({}).sort('date').exec(async (error, events) => {
         }
 
         previousDate = e.date
-        let btn = Markup.callbackButton(e.date.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'}), KeyboardAction.bookTraining + i.toString(), false)
+        let btn = Markup.callbackButton(e.date.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}), KeyboardAction.bookTraining + i.toString(), false)
         row.push(btn)
         // rowLength++
 

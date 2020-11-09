@@ -5,6 +5,7 @@
   "author": "yadgarov",
   "main": "build/index.js",
   "private": true,
+  "scripts":{"start":"node --icu-data-dir=node_modules/full-icu YOURAPP.js"},
   "engines": {
     "node": "12.4.0"
   },
