@@ -16,6 +16,7 @@ const bookings_model_1 = require("../../models/bookings/bookings.model");
 var KeyboardAction;
 (function (KeyboardAction) {
     KeyboardAction["openTraining"] = "open_training-";
+    KeyboardAction["update"] = "update_schedule";
 })(KeyboardAction || (KeyboardAction = {}));
 const scheduleScene = new telegraf_1.BaseScene(scenes_1.Scene.schedule);
 scheduleScene.enter((ctx) => {
@@ -49,17 +50,27 @@ scheduleScene.enter((ctx) => {
             // make a button
             dynamicButtons.push([telegraf_1.Markup.callbackButton(`${sign}  ${time} – ${e.name}`, KeyboardAction.openTraining + e._id)]);
         }
-        let extra = telegraf_1.Markup.inlineKeyboard(dynamicButtons).extra();
-        extra.parse_mode = "MarkdownV2";
         // console.log(ctx)
-        if (ctx.updateType == 'message') {
-            ctx.reply(`Наше расписание на ближайшие 7 дней:`, extra);
+        let text = 'Наше расписание на ближайшие 7 дней:';
+        if (events.length === 0) {
+            text = 'Пока что нет никаких тренировок на ближайшие 7 дней.';
+            dynamicButtons.push([telegraf_1.Markup.callbackButton('Обновить', KeyboardAction.update)]);
         }
-        else {
-            ctx.editMessageText(`Наше расписание на ближайшие 7 дней:`, extra);
-        }
+        const localTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Moscow' });
+        text = `*Расписание на ${localTime}*\n\n${text}`;
+        sendAnswer(ctx, text, dynamicButtons);
     }));
 });
+function sendAnswer(ctx, text, dynamicButtons) {
+    let extra = telegraf_1.Markup.inlineKeyboard(dynamicButtons).extra();
+    extra.parse_mode = "Markdown";
+    if (ctx.updateType == 'message') {
+        ctx.reply(text, extra);
+    }
+    else {
+        ctx.editMessageText(text, extra);
+    }
+}
 // [0-9]*$
 scheduleScene.action(new RegExp(`^${KeyboardAction.openTraining}`), (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -68,6 +79,9 @@ scheduleScene.action(new RegExp(`^${KeyboardAction.openTraining}`), (ctx) => __a
     const promise = events_model_1.EventModel.findOne({ '_id': id }).exec();
     ctx.session.selectedEvent = yield promise;
     ctx.scene.enter(scenes_1.Scene.trainingPage);
+}));
+scheduleScene.action(KeyboardAction.update, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    ctx.scene.reenter();
 }));
 /*
 

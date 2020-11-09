@@ -8,6 +8,7 @@ import { BookingModel } from '../../models/bookings/bookings.model'
 
 enum KeyboardAction {
     openTraining = 'open_training-',
+    update = 'update_schedule'
 }
 
 const scheduleScene = new BaseScene(Scene.schedule)
@@ -43,17 +44,31 @@ scheduleScene.enter((ctx: SceneContextMessageUpdate) => {
             // make a button
             dynamicButtons.push([Markup.callbackButton(`${sign}  ${time} – ${e.name}`, KeyboardAction.openTraining + e._id)])
         }
-
-        let extra = Markup.inlineKeyboard(dynamicButtons).extra()
-        extra.parse_mode = "MarkdownV2"
+  
         // console.log(ctx)
-        if (ctx.updateType == 'message') {
-            ctx.reply(`Наше расписание на ближайшие 7 дней:`, extra)
-        } else {
-            ctx.editMessageText(`Наше расписание на ближайшие 7 дней:`, extra)
+        let text: string = 'Наше расписание на ближайшие 7 дней:'
+        if (events.length === 0) {
+            text = 'Пока что нет никаких тренировок на ближайшие 7 дней.'
+            dynamicButtons.push([Markup.callbackButton('Обновить', KeyboardAction.update)])
         }
+        
+        const localTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Moscow'})
+        text = `*Расписание на ${localTime}*\n\n${text}`
+
+        sendAnswer(ctx, text, dynamicButtons)
     })
 })
+
+function sendAnswer(ctx: SceneContextMessageUpdate, text: string, dynamicButtons: CallbackButton[][]) {
+    let extra = Markup.inlineKeyboard(dynamicButtons).extra()
+    extra.parse_mode = "Markdown"
+
+    if (ctx.updateType == 'message') {
+        ctx.reply(text, extra)
+    } else {
+        ctx.editMessageText(text, extra)
+    }
+}
 
 // [0-9]*$
 scheduleScene.action(new RegExp(`^${KeyboardAction.openTraining}`), async (ctx: SceneContextMessageUpdate) => {
@@ -63,6 +78,10 @@ scheduleScene.action(new RegExp(`^${KeyboardAction.openTraining}`), async (ctx: 
     const promise = EventModel.findOne({ '_id': id }).exec()
     ctx.session.selectedEvent = await promise
     ctx.scene.enter(Scene.trainingPage)
+})
+
+scheduleScene.action(KeyboardAction.update, async (ctx: SceneContextMessageUpdate) => {
+    ctx.scene.reenter()
 })
 
 /*
