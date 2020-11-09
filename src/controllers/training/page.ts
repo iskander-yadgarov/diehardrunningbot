@@ -103,12 +103,14 @@ trainingPageScene.enter(async (ctx: SceneContextMessageUpdate) => {
         extra.parse_mode = 'Markdown'
 
         ctx.editMessageText(initialText, extra)
+        ctx.answerCbQuery()
     })
 })
 
 trainingPageScene.action(KeyboardAction.backAction, (ctx: SceneContextMessageUpdate) => {
     ctx.scene.enter(Scene.schedule)
 })
+
 
 trainingPageScene.action(KeyboardAction.bookTraining, (ctx: SceneContextMessageUpdate) => {
 

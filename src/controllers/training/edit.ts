@@ -66,8 +66,10 @@ function buildMenu(ctx: SceneContextMessageUpdate, newMessage: boolean = false) 
 
     if (newMessage)
         ctx.reply(text, extra)
-    else
+    else {
         ctx.editMessageText(text, extra)
+        ctx.answerCbQuery()
+    }
 }
 
 trainingEditScene.action(KeyboardAction.backAction, (ctx: SceneContextMessageUpdate) => {
@@ -184,6 +186,7 @@ trainingEditScene.action(KeyboardAction.deleteTraining, (ctx: SceneContextMessag
     ]);
 
     ctx.editMessageText('Вы уверены что хотите удалить эту тренировку?', buttons.extra())
+    ctx.answerCbQuery()
 })
 
 trainingEditScene.action(KeyboardAction.confirmDeleting, async (ctx: SceneContextMessageUpdate) => {

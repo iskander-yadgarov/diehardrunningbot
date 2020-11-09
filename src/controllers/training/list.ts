@@ -52,6 +52,7 @@ userListScene.enter(async (ctx: SceneContextMessageUpdate) => {
             }
 
             ctx.editMessageText(listOfUsers, keyboard)
+            ctx.answerCbQuery()
         })
     })
 })

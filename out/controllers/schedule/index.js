@@ -24,8 +24,8 @@ scheduleScene.enter((ctx) => {
     const userId = (_a = ctx.chat) === null || _a === void 0 ? void 0 : _a.id.toString();
     if (!userId)
         return;
-    // todo find only for today and after: { 'date': {$gte: start, $lt: until} }
-    events_model_1.EventModel.find({ 'date': { $gte: new Date(), $lt: new Date().addDays(7) } }).sort('date').exec((error, events) => __awaiter(void 0, void 0, void 0, function* () {
+    // todo find only for today and after: { 'date': {$gte: start, $lt: new Date().addDays(7)} }
+    events_model_1.EventModel.find({ 'date': { $gte: new Date() } }).sort('date').exec((error, events) => __awaiter(void 0, void 0, void 0, function* () {
         if (error) {
             console.log(`error for fetching events: ${error}`);
             return;
@@ -41,8 +41,8 @@ scheduleScene.enter((ctx) => {
             let e = events[i];
             // if first one OR the previous event's day is not the same
             if (i == 0 || !events[i - 1].date.isSameDate(e.date)) {
-                // make a header
-                dynamicButtons.push([telegraf_1.Markup.callbackButton('👇 ' + e.date.getStringFullDate() + ' 👇', 'null')]);
+                // make a header ⤵️
+                dynamicButtons.push([telegraf_1.Markup.callbackButton(e.date.getStringFullDate() + ':', 'null')]);
             }
             const time = e.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
             const booked = result.find(b => b.eventId == e._id) !== undefined;
@@ -51,27 +51,31 @@ scheduleScene.enter((ctx) => {
             dynamicButtons.push([telegraf_1.Markup.callbackButton(`${sign}  ${time} – ${e.name}`, KeyboardAction.openTraining + e._id)]);
         }
         // console.log(ctx)
-        let text = 'Наше расписание на ближайшие 7 дней:';
+        let text = '<b>Расписание</b>\n\n';
         if (events.length === 0) {
-            text = 'Пока нет никаких тренировок на ближайшие 7 дней.';
-            dynamicButtons.push([telegraf_1.Markup.callbackButton('Обновить', KeyboardAction.update)]);
+            text += 'Пока нет никаких событий.\nПопробуй обновить расписание позже\n\n';
         }
+        dynamicButtons.push([telegraf_1.Markup.callbackButton('🔄  Обновить', KeyboardAction.update)]);
         //, timeZone: 'Europe/Moscow'
         const localTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        text = `*Расписание:* \[обновлено в ${localTime}\]\n\n${text}`;
+        text += `<i>[обновлено в ${localTime}]</i>`;
         sendAnswer(ctx, text, dynamicButtons);
     }));
 });
 function sendAnswer(ctx, text, dynamicButtons) {
     let extra = telegraf_1.Markup.inlineKeyboard(dynamicButtons).extra();
-    extra.parse_mode = "Markdown";
+    extra.parse_mode = "HTML";
     if (ctx.updateType == 'message') {
         ctx.reply(text, extra);
     }
     else {
         ctx.editMessageText(text, extra);
+        ctx.answerCbQuery();
     }
 }
+scheduleScene.action('null', (ctx) => {
+    ctx.answerCbQuery();
+});
 // [0-9]*$
 scheduleScene.action(new RegExp(`^${KeyboardAction.openTraining}`), (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;

@@ -65,8 +65,10 @@ function buildMenu(ctx, newMessage = false) {
     extra.parse_mode = "Markdown";
     if (newMessage)
         ctx.reply(text, extra);
-    else
+    else {
         ctx.editMessageText(text, extra);
+        ctx.answerCbQuery();
+    }
 }
 trainingEditScene.action(KeyboardAction.backAction, (ctx) => {
     ctx.scene.enter(scenes_1.Scene.trainingPage);
@@ -179,6 +181,7 @@ trainingEditScene.action(KeyboardAction.deleteTraining, (ctx) => {
             telegraf_1.Markup.callbackButton('Да', KeyboardAction.confirmDeleting)]
     ]);
     ctx.editMessageText('Вы уверены что хотите удалить эту тренировку?', buttons.extra());
+    ctx.answerCbQuery();
 });
 trainingEditScene.action(KeyboardAction.confirmDeleting, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     let event = ctx.session.selectedEvent;

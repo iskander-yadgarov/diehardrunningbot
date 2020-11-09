@@ -16,8 +16,8 @@ const scheduleScene = new BaseScene(Scene.schedule)
 scheduleScene.enter((ctx: SceneContextMessageUpdate) => {
     const userId = ctx.chat?.id.toString()
     if (!userId) return
-    // todo find only for today and after: { 'date': {$gte: start, $lt: until} }
-    EventModel.find({'date': {$gte: new Date(), $lt: new Date().addDays(7)}}).sort('date').exec(async (error, events) => {
+    // todo find only for today and after: { 'date': {$gte: start, $lt: new Date().addDays(7)} }
+    EventModel.find({'date': { $gte: new Date() }}).sort('date').exec(async (error, events) => {
         if (error) { console.log(`error for fetching events: ${error}`); return }
 
         let ids: any[] = []
@@ -34,8 +34,8 @@ scheduleScene.enter((ctx: SceneContextMessageUpdate) => {
             let e = events[i]
             // if first one OR the previous event's day is not the same
             if (i == 0 || !events[i - 1].date.isSameDate(e.date)) {
-                // make a header
-                dynamicButtons.push([Markup.callbackButton('👇 ' + e.date.getStringFullDate() + ' 👇', 'null')])
+                // make a header ⤵️
+                dynamicButtons.push([Markup.callbackButton(e.date.getStringFullDate() + ':', 'null')])
             }
 
             const time = e.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
@@ -46,14 +46,15 @@ scheduleScene.enter((ctx: SceneContextMessageUpdate) => {
         }
   
         // console.log(ctx)
-        let text: string = 'Наше расписание на ближайшие 7 дней:'
+        let text: string = '<b>Расписание</b>\n\n'
         if (events.length === 0) {
-            text = 'Пока нет никаких тренировок на ближайшие 7 дней.'
-            dynamicButtons.push([Markup.callbackButton('Обновить', KeyboardAction.update)])
+            text += 'Пока нет никаких событий.\nПопробуй обновить расписание позже\n\n'
         }
+        dynamicButtons.push([Markup.callbackButton('🔄  Обновить', KeyboardAction.update)])
+        
         //, timeZone: 'Europe/Moscow'
         const localTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit'})
-        text = `*Расписание:* \[обновлено в ${localTime}\]\n\n${text}`
+        text += `<i>[обновлено в ${localTime}]</i>`
 
         sendAnswer(ctx, text, dynamicButtons)
     })
@@ -61,14 +62,19 @@ scheduleScene.enter((ctx: SceneContextMessageUpdate) => {
 
 function sendAnswer(ctx: SceneContextMessageUpdate, text: string, dynamicButtons: CallbackButton[][]) {
     let extra = Markup.inlineKeyboard(dynamicButtons).extra()
-    extra.parse_mode = "Markdown"
+    extra.parse_mode = "HTML"
 
     if (ctx.updateType == 'message') {
         ctx.reply(text, extra)
     } else {
         ctx.editMessageText(text, extra)
+        ctx.answerCbQuery()
     }
 }
+
+scheduleScene.action('null', (ctx: SceneContextMessageUpdate) => {
+    ctx.answerCbQuery()
+})
 
 // [0-9]*$
 scheduleScene.action(new RegExp(`^${KeyboardAction.openTraining}`), async (ctx: SceneContextMessageUpdate) => {

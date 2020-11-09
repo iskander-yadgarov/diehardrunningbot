@@ -49,6 +49,7 @@ userListScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () {
                 listOfUsers = 'Пока никто не записался.';
             }
             ctx.editMessageText(listOfUsers, keyboard);
+            ctx.answerCbQuery();
         });
     });
 }));

@@ -99,6 +99,7 @@ trainingPageScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () 
         const extra = telegraf_1.Markup.inlineKeyboard(keyboards).extra();
         extra.parse_mode = 'Markdown';
         ctx.editMessageText(initialText, extra);
+        ctx.answerCbQuery();
     }));
 }));
 trainingPageScene.action(KeyboardAction.backAction, (ctx) => {
