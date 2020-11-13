@@ -44,7 +44,7 @@ export enum Scene {
     menu = 'menu',
     schedule = 'schedule',
     createEvent = 'create-event',
-    discountSettings = 'discount-settings',
+    citySelector = 'city',
     trainingPage = 'training-page',
     trainingEdit = 'training-edit',
     userListPage = 'list-page',

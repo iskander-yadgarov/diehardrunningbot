@@ -4,9 +4,11 @@ import strings from '../../resources/strings'
 import { Scene } from '../scenes'
 import { UserModel } from '../../models/users/users.model'
 import { IUser, IUserDocument } from "../../models/users/users.types"
+import { CallbackButton } from "telegraf/typings/markup"
 
 enum KeyboardAction {
-  ready = 'ready'
+  ready = 'ready',
+  select = 'select-'
 }
 
 const introScene = new BaseScene(Scene.intro)
@@ -18,11 +20,23 @@ const confirmNameKeyboard = Markup.inlineKeyboard(
 introScene.enter(async (ctx: SceneContextMessageUpdate) => {
 
   const firstName = ctx.from?.first_name
-  // show intro messages and wait for reply
   ctx.reply(`Привет, ${firstName}!\n\n${strings.intro_scene.message}`, confirmNameKeyboard)
 })
 
+introScene.action(new RegExp(`^${KeyboardAction.select}`), async (ctx: SceneContextMessageUpdate) => {
 
+})
+
+/*   let promise = CityModel.find({}).exec()
+  let cities = await promise
+  if (!cities) return;
+
+  ctx.scene.state.cities = cities
+  let buttons: CallbackButton[][] = [];
+  for (let i = 0; i < cities.length; i++) {
+    var button = [Markup.callbackButton(cities[i].name.toString(), KeyboardAction.select + i)]
+    buttons.push(button)
+  }; */
 
 introScene.action(KeyboardAction.ready, async (ctx: SceneContextMessageUpdate) => {
   const chatId = ctx.chat?.id.toString()
@@ -37,7 +51,7 @@ introScene.action(KeyboardAction.ready, async (ctx: SceneContextMessageUpdate) =
   // console.log(promise)
   // const user = users[0]
   if (users[0] != undefined) {
-    ctx.scene.enter(Scene.schedule)
+    ctx.scene.enter(Scene.citySelector)
   } else {
     const user = {
       chatId: chatId,
@@ -47,7 +61,7 @@ introScene.action(KeyboardAction.ready, async (ctx: SceneContextMessageUpdate) =
     }
 
     const promise = UserModel.create(user).then(newUser => {
-      ctx.scene.enter(Scene.schedule)
+      ctx.scene.enter(Scene.citySelector)
     })
   }
 })

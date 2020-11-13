@@ -42,20 +42,20 @@ const { TelegrafMongoSession } = require('telegraf-session-mongodb');
 const intro_1 = __importDefault(require("../controllers/intro"));
 const schedule_1 = __importDefault(require("../controllers/schedule"));
 const create_event_1 = __importDefault(require("../controllers/create-event"));
-const discount_1 = __importDefault(require("../controllers/discount/discount"));
 const page_1 = __importDefault(require("../controllers/training/page"));
 const edit_1 = __importDefault(require("../controllers/training/edit"));
 const list_1 = __importDefault(require("../controllers/training/list"));
 const archive_1 = __importDefault(require("../controllers/archive/archive"));
+const city_1 = __importDefault(require("../controllers/city-selector/city"));
 const bot = new telegraf_1.default(env_1.default.TELEGRAM_TOKEN);
 const stages = new telegraf_1.Stage([
     intro_1.default,
     // menuScene,
     schedule_1.default,
     create_event_1.default,
-    discount_1.default,
     page_1.default,
     edit_1.default,
+    city_1.default,
     // userTrainingScene,
     list_1.default,
     archive_1.default

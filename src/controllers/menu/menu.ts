@@ -58,6 +58,6 @@ menuScene.action(KeyboardAction.archive, (ctx: SceneContextMessageUpdate) => ctx
 
 menuScene.action(KeyboardAction.create_event, (ctx: SceneContextMessageUpdate) => ctx.scene.enter(Scene.createEvent))
 
-menuScene.action(KeyboardAction.create_discount, (ctx: SceneContextMessageUpdate) => ctx.scene.enter(Scene.discountSettings))
+// menuScene.action(KeyboardAction.create_discount, (ctx: SceneContextMessageUpdate) => ctx.scene.enter(Scene.discountSettings))
 
 export default menuScene

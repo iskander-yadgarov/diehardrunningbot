@@ -49,6 +49,6 @@ menuScene.action(KeyboardAction.schedule, (ctx) => ctx.scene.enter(scenes_1.Scen
 menuScene.action(KeyboardAction.my_bookings, (ctx) => ctx.scene.enter(scenes_1.Scene.userTrainings));
 menuScene.action(KeyboardAction.archive, (ctx) => ctx.scene.enter(scenes_1.Scene.archiveScene));
 menuScene.action(KeyboardAction.create_event, (ctx) => ctx.scene.enter(scenes_1.Scene.createEvent));
-menuScene.action(KeyboardAction.create_discount, (ctx) => ctx.scene.enter(scenes_1.Scene.discountSettings));
+// menuScene.action(KeyboardAction.create_discount, (ctx: SceneContextMessageUpdate) => ctx.scene.enter(Scene.discountSettings))
 exports.default = menuScene;
 //# sourceMappingURL=menu.js.map

@@ -11,12 +11,12 @@ import introScene from "../controllers/intro"
 import menuScene from "../controllers/menu/menu"
 import scheduleScene from '../controllers/schedule'
 import createEventScene from '../controllers/create-event'
-import createDiscountScene from '../controllers/discount/discount'
 import trainingPageScene from '../controllers/training/page'
 import trainingEditScene from '../controllers/training/edit'
 import userTrainingScene from '../controllers/user-trainings'
 import userListScene from '../controllers/training/list'
 import archiveScene from '../controllers/archive/archive'
+import citySelectorScene from '../controllers/city-selector/city'
 
 const bot = new Telegraf(env.TELEGRAM_TOKEN)
 
@@ -25,9 +25,9 @@ const stages = new Stage([
     // menuScene,
     scheduleScene,
     createEventScene,
-    createDiscountScene,
     trainingPageScene,
     trainingEditScene,
+    citySelectorScene,
     // userTrainingScene,
     userListScene,
     archiveScene

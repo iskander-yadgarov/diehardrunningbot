@@ -19,15 +19,27 @@ const users_model_1 = require("../../models/users/users.model");
 var KeyboardAction;
 (function (KeyboardAction) {
     KeyboardAction["ready"] = "ready";
+    KeyboardAction["select"] = "select-";
 })(KeyboardAction || (KeyboardAction = {}));
 const introScene = new telegraf_1.BaseScene(scenes_1.Scene.intro);
 const confirmNameKeyboard = telegraf_1.Markup.inlineKeyboard([telegraf_1.Markup.callbackButton('Погнали 💪', KeyboardAction.ready)]).extra();
 introScene.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const firstName = (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.first_name;
-    // show intro messages and wait for reply
     ctx.reply(`Привет, ${firstName}!\n\n${strings_1.default.intro_scene.message}`, confirmNameKeyboard);
 }));
+introScene.action(new RegExp(`^${KeyboardAction.select}`), (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+/*   let promise = CityModel.find({}).exec()
+  let cities = await promise
+  if (!cities) return;
+
+  ctx.scene.state.cities = cities
+  let buttons: CallbackButton[][] = [];
+  for (let i = 0; i < cities.length; i++) {
+    var button = [Markup.callbackButton(cities[i].name.toString(), KeyboardAction.select + i)]
+    buttons.push(button)
+  }; */
 introScene.action(KeyboardAction.ready, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _b, _c, _d;
     const chatId = (_b = ctx.chat) === null || _b === void 0 ? void 0 : _b.id.toString();
@@ -46,7 +58,7 @@ introScene.action(KeyboardAction.ready, (ctx) => __awaiter(void 0, void 0, void 
     // console.log(promise)
     // const user = users[0]
     if (users[0] != undefined) {
-        ctx.scene.enter(scenes_1.Scene.schedule);
+        ctx.scene.enter(scenes_1.Scene.citySelector);
     }
     else {
         const user = {
@@ -56,7 +68,7 @@ introScene.action(KeyboardAction.ready, (ctx) => __awaiter(void 0, void 0, void 
             discount: 0
         };
         const promise = users_model_1.UserModel.create(user).then(newUser => {
-            ctx.scene.enter(scenes_1.Scene.schedule);
+            ctx.scene.enter(scenes_1.Scene.citySelector);
         });
     }
 }));

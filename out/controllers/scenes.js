@@ -46,7 +46,7 @@ var Scene;
     Scene["menu"] = "menu";
     Scene["schedule"] = "schedule";
     Scene["createEvent"] = "create-event";
-    Scene["discountSettings"] = "discount-settings";
+    Scene["citySelector"] = "city";
     Scene["trainingPage"] = "training-page";
     Scene["trainingEdit"] = "training-edit";
     Scene["userListPage"] = "list-page";
